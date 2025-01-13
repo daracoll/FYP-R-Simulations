@@ -13,7 +13,7 @@ epsilon_X <- rnorm(n, mean = 0, sd = sigma_X)
 epsilon_Y <- rnorm(n, mean = 0, sd = sigma_Y)
 
 Z <- epsilon_Z
-X <- Z^3 + U + epsilon_X
+X <- Z + U + epsilon_X
 
 failed_p <- c()
 inv_condition_numbers <- c()
