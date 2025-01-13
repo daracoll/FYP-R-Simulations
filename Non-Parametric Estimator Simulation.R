@@ -26,7 +26,7 @@ epsilon_Y <- rnorm(n, mean = 0, sd = sigma_Y)
 
 
 Z <- epsilon_Z
-X <- Z^3 + U + epsilon_X
+X <- Z + U + epsilon_X
 Y <- true_alpha * X + true_beta * X^2 + U + epsilon_Y
 
 
