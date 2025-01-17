@@ -20,7 +20,7 @@ inv_condition_numbers <- c()
 results <- list()
 
 for (p in 1:25) {
-  true_coefficients <- runif(p, min = 0.5, max = 5)
+  true_coefficients <- runif(p, min = -5, max = 5)
   Y <- rowSums(sapply(1:p, function(i) true_coefficients[i] * X^i)) + U + epsilon_Y
   
   A <- matrix(0, nrow = p, ncol = p)
