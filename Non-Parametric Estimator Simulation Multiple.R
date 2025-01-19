@@ -1,10 +1,11 @@
 
+
+
 ```{r}
 library(ggplot2)
 
 set.seed(123)
 
-# Parameters
 sigma_Z <- 1
 sigma_U <- 1
 sigma_X <- 1
@@ -12,15 +13,12 @@ sigma_Y <- 1
 n <- 10000
 num_trials <- 100
 
-# Initialize coefficients
 true_coefficients <- numeric()
 mse_table <- list()
 p <- 1
 
 repeat {
-  # Generate a new coefficient for the current p
   true_coefficients <- c(true_coefficients, runif(1, min = -5, max = 5))
-  
   failed <- FALSE
   mse_list <- matrix(NA, nrow = num_trials, ncol = p)
   estimates <- matrix(NA, nrow = num_trials, ncol = p)
@@ -56,16 +54,11 @@ repeat {
     mse_list[trial, ] <- (params - true_coefficients[1:p])^2
   }
   
-  if (failed) {
-    cat("Estimation process stopped for p =", p, "due to singularity.\n")
-    break
-  }
+  if (failed) break
   
-  # Calculate and store MSE for this p
   mse_mean <- colMeans(mse_list, na.rm = TRUE)
   mse_table[[p]] <- mse_mean
   
-  # Plot histograms for estimates of each parameter
   for (param_idx in 1:p) {
     param_estimates <- estimates[, param_idx]
     hist_data <- data.frame(Estimate = param_estimates[!is.na(param_estimates)])
@@ -83,11 +76,9 @@ repeat {
     print(p_hist)
   }
   
-  # Increment p for the next iteration
   p <- p + 1
 }
 
-# Format MSE table
 mse_df <- data.frame(matrix(NA, nrow = length(mse_table), ncol = max(p - 1, 1)))
 colnames(mse_df) <- paste0("Beta", 1:(p - 1))
 rownames(mse_df) <- paste0("p=", 1:length(mse_table))
@@ -96,11 +87,48 @@ for (i in 1:length(mse_table)) {
   mse_df[i, 1:length(mse_table[[i]])] <- mse_table[[i]]
 }
 
-# Display the formatted MSE table
 cat("\nFormatted MSE Table:\n")
 print(mse_df)
 
-# Optionally save the MSE table as a CSV
- write.csv(mse_df, "formatted_mse_table.csv", row.names = TRUE)
+write.csv(mse_df, "formatted_mse_table.csv", row.names = TRUE)
+
 
 ```
+
+
+
+
+```{r}
+library(ggplot2)
+
+parameter_to_plot <- "Beta3"
+
+filtered_mse_results <- mse_results[mse_results$Parameter == parameter_to_plot, ]
+
+mse_plot <- ggplot(filtered_mse_results, aes(x = p, y = Observed_MSE)) +
+  geom_line(size = 1, colour = "blue") +
+  geom_point(size = 2, colour = "blue") +
+  labs(
+    title = paste("MSE of", parameter_to_plot, "vs. p"),
+    x = "p (Number of Parameters)",
+    y = "Observed MSE"
+  ) +
+  theme_minimal() +
+  scale_x_continuous(breaks = filtered_mse_results$p) +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10)
+  )
+
+print(mse_plot)
+
+```
+
+ 
+
+
+
+
+
+
