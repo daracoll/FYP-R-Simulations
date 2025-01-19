@@ -12,7 +12,7 @@ sigma_X <- 1
 sigma_Y <- 1
 sample_sizes <- c(10, 100, 1000, 10000)
 n_reps <- 100
-mse_results <- matrix(NA, nrow = length(sample_sizes), ncol = 2)
+relative_mse_results <- matrix(NA, nrow = length(sample_sizes), ncol = 2)
 
 for (i in 1:length(sample_sizes)) {
   
@@ -48,12 +48,14 @@ for (i in 1:length(sample_sizes)) {
     beta_2_estimates[j] <- params[2]
   }
   
-  mse_beta_1 <- mean((beta_1_estimates - true_beta_1)^2)
-  mse_beta_2 <- mean((beta_2_estimates - true_beta_2)^2)
+  # Calculate Relative MSE
+  relative_mse_beta_1 <- mean((beta_1_estimates - true_beta_1)^2) / abs(true_beta_1)
+  relative_mse_beta_2 <- mean((beta_2_estimates - true_beta_2)^2) / abs(true_beta_2)
 
-  mse_results[i, 1] <- mse_beta_1
-  mse_results[i, 2] <- mse_beta_2
+  relative_mse_results[i, 1] <- relative_mse_beta_1
+  relative_mse_results[i, 2] <- relative_mse_beta_2
 
+  # Histograms for estimates
   hist_data_beta_1 <- data.frame(Estimate = beta_1_estimates)
   hist_data_beta_2 <- data.frame(Estimate = beta_2_estimates)
 
@@ -81,8 +83,9 @@ for (i in 1:length(sample_sizes)) {
   print(p_hist_beta_2)
 }
 
-colnames(mse_results) <- c("beta_1", "beta_2")
-rownames(mse_results) <- as.character(sample_sizes)
-print(mse_results)
+colnames(relative_mse_results) <- c("beta_1", "beta_2")
+rownames(relative_mse_results) <- as.character(sample_sizes)
+print(relative_mse_results)
 
 ```
+
