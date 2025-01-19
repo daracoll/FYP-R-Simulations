@@ -90,8 +90,6 @@ for (i in 1:length(mse_table)) {
 cat("\nFormatted MSE Table:\n")
 print(mse_df)
 
-write.csv(mse_df, "formatted_mse_table.csv", row.names = TRUE)
-
 
 ```
 
@@ -100,10 +98,26 @@ write.csv(mse_df, "formatted_mse_table.csv", row.names = TRUE)
 
 ```{r}
 library(ggplot2)
+library(tidyr)
+library(dplyr)
 
-parameter_to_plot <- "Beta3"
+mse_df <- data.frame(matrix(NA, nrow = length(mse_table), ncol = max(p - 1, 1)))
+colnames(mse_df) <- paste0("Beta", 1:(p - 1))
+rownames(mse_df) <- paste0("p=", 1:length(mse_table))
 
-filtered_mse_results <- mse_results[mse_results$Parameter == parameter_to_plot, ]
+for (i in 1:length(mse_table)) {
+  mse_df[i, 1:length(mse_table[[i]])] <- mse_table[[i]]
+}
+
+mse_long <- mse_df %>%
+  rownames_to_column("p") %>%
+  gather(key = "Parameter", value = "Observed_MSE", -p)
+
+mse_long$p <- as.integer(gsub("p=", "", mse_long$p))
+
+parameter_to_plot <- "Beta2"
+
+filtered_mse_results <- mse_long[mse_long$Parameter == parameter_to_plot, ]
 
 mse_plot <- ggplot(filtered_mse_results, aes(x = p, y = Observed_MSE)) +
   geom_line(size = 1, colour = "blue") +
@@ -122,6 +136,9 @@ mse_plot <- ggplot(filtered_mse_results, aes(x = p, y = Observed_MSE)) +
   )
 
 print(mse_plot)
+
+
+
 
 ```
 
