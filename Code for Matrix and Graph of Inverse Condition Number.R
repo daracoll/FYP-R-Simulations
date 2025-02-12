@@ -7,7 +7,7 @@ double_factorial <- function(n) {
 sigmaZ <- 1
 sigmaU <- 1
 sigmaX <- 1
-dim <- 3
+dim <- 100
 
 A <- matrix(0, nrow = dim, ncol = dim)
 
