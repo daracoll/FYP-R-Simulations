@@ -51,3 +51,16 @@ for (i in 1:dim) {
 A
 
 ```
+
+
+```{r}
+inv_condition_numbers <- numeric(100)
+
+for (i in 1:100) {
+  submatrix <- A[1:i, 1:i]
+  singular_values <- svd(submatrix)$d
+  inv_condition_numbers[i] <- min(singular_values) / max(singular_values)
+}
+
+print(inv_condition_numbers)
+```
