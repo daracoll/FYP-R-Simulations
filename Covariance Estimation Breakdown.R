@@ -5,7 +5,7 @@ set.seed(348)
 
 alpha <- 2
 sample_sizes <- c(10, 100, 1000, 10000)
-n_reps <- 10000
+n_reps <- 50
 results <- matrix(NA, nrow = length(sample_sizes), ncol = 2)
 
 for (i in 1:length(sample_sizes)) {
