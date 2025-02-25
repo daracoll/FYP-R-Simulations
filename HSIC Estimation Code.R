@@ -57,46 +57,46 @@ hsicx_estimator <- function(X, Y, Z, kernel_type, t = 30, k = 100, m = 32, gamma
   theta_iv <- iv_estimator(Z, X, Y)  
   theta_best <- theta_iv  
   pval_best <- 0  
-  
+ 
   while (l < t && pval < alpha) {
     if (l == 0) {
       theta <- theta_iv  
     } else {
       theta <- runif(1, min = 8, max = 14)  
     }
-    
+   
     while (update > 0.001) {
       theta_old <- theta
       res <- Y - (theta * X)
-      
+     
       for (i in 1:k) {
         sample <- sample_n(data.frame(X, Y, Z), m)
         res_sample <- sample$Y - (theta * sample$X)
         loss <- dhsic(res_sample, sample$Z, kernel = kernel_type)
         theta <- theta - gamma * hsic_grad(sample$X, sample$Y, sample$Z, theta, kernel_type)
       }
-      
+     
       update <- sqrt((theta_old - theta)^2)
     }
-    
+   
     resid <- Y - (theta * X)
     test <- dhsic.test(resid, Z, kernel = kernel_type)
     pval <- test$p.value
     l <- l + 1
-    
+   
     if (pval > pval_best) {
       pval_best <- pval
       theta_best <- theta
     }
-    
+   
     cat("Iteration:", l, "Theta Estimate:", theta, "P-value:", pval, "\n")
   }
-  
+ 
   if (l == t && pval < alpha) {
-    warning("⚠️ HSIC-X estimator did not converge within ", t, 
+    warning(" HSIC-X estimator did not converge within ", t,
             " iterations. Using best estimate found: ", round(theta_best, 4))
   }
-  
+ 
   return(theta_best)
 }
 
@@ -104,24 +104,24 @@ hsicx_estimator <- function(X, Y, Z, kernel_type, t = 30, k = 100, m = 32, gamma
 
 run_simulation <- function(num_trials, n) {
   results <- list()
-  
+ 
   for (trial in 1:num_trials) {
     Z_cont <- simulate_Z_cont(n)
     Z_disc <- simulate_Z_disc(n)
-    
+   
     U <- rnorm(n, 0, sigma_U)
     epsilon_X <- rnorm(n, 0, sigma_X)
-    
-    X_cont <- Z_cont + U + epsilon_X  
-    Y_cont <- true_beta * X_cont + U + rnorm(n, 0, sigma_Y)
-    X_nl_cont <- Z_cont * U - 2 * U + epsilon_X
-    Y_nl_cont <- true_beta * X_nl_cont + 5 * U + rnorm(n, 0, sigma_Y)
-    
-    X_disc <- Z_disc + U + epsilon_X  
-    Y_disc <- true_beta * X_disc + U + rnorm(n, 0, sigma_Y)
-    X_nl_disc <-  2*(Z_disc ) * U - 3 * U + epsilon_X
-    Y_nl_disc <- true_beta * X_nl_disc + 5 * U + rnorm(n, 0, sigma_Y)
-    
+   
+    X_cont <- Z_cont -2* U + epsilon_X  
+    Y_cont <- true_beta * X_cont +5* U + rnorm(n, 0, sigma_Y)
+    X_nl_cont <- Z_cont * U -2*U + epsilon_X
+    Y_nl_cont <- true_beta * X_nl_cont +  5*U + rnorm(n, 0, sigma_Y)
+   
+    X_disc <- Z_disc -2* U + epsilon_X  
+    Y_disc <- true_beta * X_disc +5* U + rnorm(n, 0, sigma_Y)
+    X_nl_disc <-  (Z_disc ) * U  -2*U+ epsilon_X
+    Y_nl_disc <- true_beta * X_nl_disc + 5* U + rnorm(n, 0, sigma_Y)
+   
    
     beta_ols_cont <- ols_estimator(X_cont, Y_cont)
     beta_iv_cont <- iv_estimator(Z_cont, X_cont, Y_cont)
@@ -139,7 +139,7 @@ run_simulation <- function(num_trials, n) {
     beta_iv_nl_disc <- iv_estimator(Z_disc, X_nl_disc, Y_nl_disc)
     beta_hsicx_nl_disc <- hsicx_estimator(X_nl_disc, Y_nl_disc, Z_disc, "gaussian")
 
-    
+   
     results[[trial]] <- c(
       beta_ols_cont, beta_iv_cont, beta_hsicx_cont,
          beta_ols_nl_cont, beta_iv_nl_cont, beta_hsicx_nl_cont,
@@ -147,7 +147,7 @@ run_simulation <- function(num_trials, n) {
       beta_ols_nl_disc, beta_iv_nl_disc, beta_hsicx_nl_disc
     )
   }
-  
+ 
 
   results_df <- as.data.frame(do.call(rbind, results))
   colnames(results_df) <- c(
@@ -156,7 +156,7 @@ run_simulation <- function(num_trials, n) {
     "OLS_Disc", "IV_Disc", "HSICX_Disc",
     "OLS_NL_Disc", "IV_NL_Disc", "HSICX_NL_Disc"
   )
-  
+ 
   return(results_df)
 }
 
